@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bakery Thrive — Bakery Business Planner</title>
+<meta name="description" content="Plan products, prices, costs and profit for a new bakery.">
+<style>
+:root{
+  --cream:#fbf5eb;--paper:#fffdf9;--brown:#4b2e20;--brown2:#6b4430;--caramel:#c98a4a;
+  --gold:#e7b77a;--ink:#241b17;--muted:#7d6d62;--line:#eadfd2;--green:#3e7656;
+  --red:#a9533d;--shadow:0 18px 45px rgba(73,42,25,.10);--radius:20px;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+a{text-decoration:none;color:inherit}
+.shell{display:flex;min-height:100vh}.side{width:255px;background:#2f1e16;color:#fff7ee;position:fixed;inset:0 auto 0 0;padding:28px 18px;z-index:5}
+.brand{display:flex;gap:12px;align-items:center;padding:6px 10px 28px}.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#e6b16e,#9e6036);display:grid;place-items:center;font-size:23px}
+.brand b{font-size:18px;letter-spacing:-.3px}.brand span{display:block;color:#cdbbae;font-size:11px;margin-top:2px}
+.nav{display:grid;gap:7px}.nav button{border:0;background:transparent;color:#d9c9be;text-align:left;padding:12px 13px;border-radius:12px;display:flex;gap:10px;align-items:center;font-weight:600}
+.nav button:hover,.nav button.active{background:#4a2d20;color:#fff}.side-note{position:absolute;bottom:22px;left:25px;right:25px;color:#bca99c;font-size:11px;line-height:1.55}
+.main{margin-left:255px;width:calc(100% - 255px);padding:28px 34px 60px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:24px}.crumb{color:var(--muted);font-size:13px}
+.btn{border:1px solid var(--line);background:var(--paper);color:var(--brown);padding:11px 15px;border-radius:12px;font-weight:750;box-shadow:0 5px 14px rgba(73,42,25,.05)}
+.btn.primary{background:var(--brown);color:#fff;border-color:var(--brown)}.btn.gold{background:var(--caramel);color:white;border-color:var(--caramel)}
+.page{display:none}.page.active{display:block}
+.hero{background:linear-gradient(135deg,#fffaf2,#f3dfc7);border:1px solid #ead7c2;border-radius:28px;padding:34px;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.hero:after{content:"🥐";position:absolute;right:45px;top:28px;font-size:110px;opacity:.18;transform:rotate(10deg)}
+.kicker{text-transform:uppercase;letter-spacing:1.8px;font-size:11px;font-weight:800;color:var(--brown2)}
+h1{font-family:Georgia,serif;font-size:46px;line-height:1.03;letter-spacing:-1.7px;margin:9px 0 12px;max-width:650px}
+h2{font-family:Georgia,serif;margin:0 0 8px;font-size:28px}.section-title{margin:28px 0 14px}
+.lead{max-width:680px;color:#6d5c51;font-size:16px;line-height:1.7}
+.grid{display:grid;gap:16px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(3,minmax(0,1fr))}.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 8px 26px rgba(73,42,25,.055)}
+.stat .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:800}.stat .value{font-size:27px;font-weight:850;margin-top:7px}.stat .sub{font-size:12px;color:var(--muted);margin-top:5px}
+.form{display:grid;gap:15px}.field label{display:block;font-size:12px;font-weight:800;color:#604b3e;margin:0 0 7px}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:#fffaf4;padding:12px 13px;border-radius:12px;outline:none;color:var(--ink)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--caramel);box-shadow:0 0 0 3px rgba(201,138,74,.12)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.badge{display:inline-flex;padding:5px 9px;border-radius:999px;background:#f3e7d9;color:#74492f;font-size:11px;font-weight:800}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:13px}.table th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.7px;padding:10px;border-bottom:1px solid var(--line)}.table td{padding:13px 10px;border-bottom:1px solid #f0e7de;vertical-align:top}.table tr:last-child td{border-bottom:0}
+.product-name{font-weight:800}.muted{color:var(--muted)}.small{font-size:12px}.money{font-weight:850;color:var(--brown)}.positive{color:var(--green)}.negative{color:var(--red)}
+.progress{height:9px;background:#eee3d8;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;background:linear-gradient(90deg,#c98a4a,#e5b778);border-radius:99px}
+.pillrow{display:flex;gap:8px;flex-wrap:wrap}.choice{border:1px solid var(--line);background:#fffaf4;border-radius:999px;padding:8px 11px;font-size:12px;font-weight:750}.choice.on{background:var(--brown);color:white;border-color:var(--brown)}
+.notice{background:#fff6e9;border:1px solid #edd7b8;color:#72523a;padding:13px 15px;border-radius:14px;font-size:12px;line-height:1.55}
+.insight{padding:15px;border-radius:15px;background:#fffaf4;border:1px solid var(--line);display:grid;gap:5px}.insight strong{font-size:13px}.insight span{font-size:12px;color:var(--muted);line-height:1.55}
+.slider{padding:13px 0}.slider label{display:flex;justify-content:space-between;font-size:12px;font-weight:750;margin-bottom:7px}.slider input{width:100%;accent-color:var(--caramel)}
+.big-profit{font-size:42px;font-weight:900;letter-spacing:-1.5px;color:var(--brown)}
+.chart{width:100%;height:240px}.chart canvas{width:100%;height:100%}
+.menu-item{display:flex;justify-content:space-between;gap:15px;padding:13px 0;border-bottom:1px solid var(--line)}.menu-item:last-child{border-bottom:0}.menu-item input{border:0;border-bottom:1px solid var(--line);background:transparent;padding:5px;width:110px;text-align:right;font-weight:800;color:var(--brown)}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed #d9c9ba;border-radius:16px}
+.footer-note{font-size:11px;color:var(--muted);line-height:1.6;margin-top:20px}
+@media(max-width:900px){.side{width:74px;padding:18px 10px}.brand div:last-child,.nav span,.side-note{display:none}.brand{justify-content:center;padding:6px 0 25px}.nav button{justify-content:center;padding:13px}.main{margin-left:74px;width:calc(100% - 74px);padding:20px}.four{grid-template-columns:repeat(2,1fr)}.three{grid-template-columns:1fr}.two{grid-template-columns:1fr}h1{font-size:38px}.hero:after{right:10px;font-size:75px}}
+@media(max-width:600px){.main{padding:14px}.hero{padding:24px}.four{grid-template-columns:1fr 1fr}.topbar{align-items:flex-start}.topbar .btn{padding:9px}.table{min-width:760px}}
+</style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="shell">
+<aside class="side">
+  <div class="brand"><div class="logo">🍞</div><div><b>Bakery Thrive</b><span>Plan • Price • Grow</span></div></div>
+  <nav class="nav">
+    <button class="active" data-page="home">⌂ <span>Home</span></button>
+    <button data-page="aiadvisor">✨ <span>AI Location Advisor</span></button>
+    <button data-page="planner">✦ <span>Bakery Planner</span></button>
+    <button data-page="advisor">🥐 <span>Product Advisor</span></button>
+    <button data-page="pricing">⌁ <span>Pricing Calculator</span></button>
+    <button data-page="simulator">◒ <span>Profit Simulator</span></button>
+    <button data-page="menu">☷ <span>Menu Builder</span></button>
+    <button data-page="dashboard">▦ <span>Dashboard</span></button>
+  </nav>
+  <div class="side-note">Planning estimates only. Real results depend on suppliers, demand, rent, labour, competition and local pricing.</div>
+</aside>
+
+<main class="main">
+<div class="card" id="excelUploadCard" style="margin-bottom:18px"><div style="display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap"><div><b>📊 Import your bakery Excel data</b><div class="small muted">Upload .xlsx, .xls or .csv. Bakery Thrive will use product names, categories and prices from the sheet for recommendations.</div></div><label class="btn gold">Choose Excel file<input id="excelFile" type="file" accept=".xlsx,.xls,.csv" style="display:none"></label></div><div id="excelStatus" class="small muted" style="margin-top:10px">Using the built-in bakery reference dataset.</div></div><div class="topbar"><div class="crumb">Bakery business planning workspace</div><button class="btn" id="reset">Reset plan</button></div>
+
+<section id="home" class="page active">
+  <div class="hero">
+    <div class="kicker">Your bakery business advisor</div>
+    <h1>Turn a bakery idea into a smarter starter plan.</h1>
+    <p class="lead">Bakery Thrive helps new owners explore products, prices, costs and financial scenarios in one simple workspace. Start with your bakery profile, then build a menu and test the numbers.</p>
+    <div class="actions"><button class="btn primary" onclick="go('planner')">Build my starter plan →</button><button class="btn" onclick="go('advisor')">Explore products</button></div>
+  </div>
+  <div class="grid three" style="margin-top:16px">
+    <div class="card"><div style="font-size:26px">🥖</div><h3>Choose products</h3><p class="small muted">Explore categories and reference prices from the supplied bakery dataset.</p></div>
+    <div class="card"><div style="font-size:26px">🧮</div><h3>Understand pricing</h3><p class="small muted">Model ingredients, packaging, labour and overheads before setting a price.</p></div>
+    <div class="card"><div style="font-size:26px">📈</div><h3>Test scenarios</h3><p class="small muted">Change customers, prices and costs to see estimated monthly outcomes.</p></div>
+  </div>
+  <div class="notice" style="margin-top:16px"><b>Reference dataset:</b> 20 bakery/product observations supplied for this project. Prices are treated as examples and estimates, not guarantees.</div>
+</section>
+
+<section id="aiadvisor" class="page">
+  <div class="hero">
+    <div class="kicker">AI Bakery Location Advisor</div>
+    <h1>Tell me where your bakery will be.</h1>
+    <p class="lead">Enter a specific location — a neighbourhood, street, mall, district or city. Bakery Thrive will build a planning recommendation around the location, including what to sell, estimated local price positioning, quantities and why.</p>
+    <div class="grid two" style="margin-top:20px">
+      <div class="field"><label>Exact bakery location</label><input id="aiLocation" placeholder="e.g. Ari, Bangkok / Sukhumvit Soi 24 / Siam Square"></div>
+      <div class="field"><label>What kind of bakery?</label><select id="aiType"><option>Small local bakery</option><option>Café bakery</option><option>Premium bakery</option><option>Wholesale bakery</option><option>Home / micro bakery</option></select></div>
+    </div>
+    <div class="grid three" style="margin-top:14px">
+      <div class="field"><label>Target customers</label><select id="aiTarget"><option>Local families</option><option>Students & young adults</option><option>Office workers</option><option>Tourists</option><option>Premium / specialty customers</option></select></div>
+      <div class="field"><label>Expected customers / day</label><input id="aiCustomers" type="number" value="80"></div>
+      <div class="field"><label>Currency</label><select id="aiCurrency"><option value="THB">THB ฿</option><option value="USD">USD $</option><option value="GBP">GBP £</option><option value="EUR">EUR €</option></select></div>
+    </div>
+    <div class="actions"><button class="btn primary" onclick="runLocationAI()">✨ Ask Bakery Thrive AI</button></div>
+  </div>
+  <div id="aiResult" style="margin-top:16px"></div>
+</section>
+
+<section id="planner" class="page">
+  <div class="kicker">Step 1</div><h2>Bakery Planner</h2><p class="lead">Tell Bakery Thrive what you are planning. You can change these assumptions later.</p>
+  <div class="grid two">
+    <div class="card form">
+      <div class="field"><label>Location / city</label><input id="location" value="Bangkok"></div>
+      <div class="field"><label>Bakery type</label><select id="type"><option>Small local bakery</option><option>Café bakery</option><option>Premium bakery</option><option>Wholesale bakery</option><option>Home / micro bakery</option></select></div>
+      <div class="field"><label>Starting budget</label><input id="budget" type="number" value="1000000" min="0"></div>
+      <div class="field"><label>Target customers</label><select id="target"><option>Local families</option><option>Students & young adults</option><option>Office workers</option><option>Tourists</option><option>Premium / specialty customers</option></select></div>
+      <div class="field"><label>Expected customers per day</label><input id="customers" type="number" value="80" min="1"></div>
+      <div class="grid two">
+        <div class="field"><label>Opening hours / day</label><input id="hours" type="number" value="10" min="1" max="24"></div>
+        <div class="field"><label>Currency</label><select id="currency"><option value="THB">THB ฿</option><option value="USD">USD $</option><option value="GBP">GBP £</option><option value="EUR">EUR €</option></select></div>
+      </div>
+      <div class="field"><label>Product preferences</label><textarea id="prefs" rows="3" placeholder="e.g. sourdough, pastries, coffee, cakes...">Bread, pastries, cakes, coffee</textarea></div>
+      <div class="actions"><button class="btn primary" id="generate">Generate starter plan →</button></div>
+    </div>
+    <div class="card">
+      <h3>Your planning snapshot</h3>
+      <div class="grid two" style="margin-top:12px">
+        <div class="stat"><div class="label">Customers / day</div><div class="value" id="snapCustomers">80</div><div class="sub">your assumption</div></div>
+        <div class="stat"><div class="label">Budget</div><div class="value" id="snapBudget">฿1.0M</div><div class="sub">starting budget</div></div>
+        <div class="stat"><div class="label">Hours</div><div class="value" id="snapHours">10h</div><div class="sub">open each day</div></div>
+        <div class="stat"><div class="label">Location</div><div class="value" id="snapLocation">Bangkok</div><div class="sub">planning market</div></div>
+      </div>
+      <div class="notice" style="margin-top:18px">Tip: your starter plan is an estimate. Validate the final menu and prices with supplier quotes, nearby competitors, customer research and your actual rent/labour costs.</div>
+    </div>
+  </div>
+</section>
+
+<section id="advisor" class="page">
+  <div class="kicker">Step 2</div><h2>Product Advisor</h2><p class="lead">Explore a starter product mix using the supplied reference prices plus estimated costs and margins.</p>
+  <div class="pillrow" id="categoryFilters"></div>
+  <div class="card" style="margin-top:16px"><div class="table-wrap"><table class="table"><thead><tr><th>Product</th><th>Category</th><th>Ref. price</th><th>Est. cost</th><th>Gross profit</th><th>Margin</th><th>Daily qty</th><th>Why</th><th></th></tr></thead><tbody id="productBody"></tbody></table></div></div>
+  <div class="footer-note">Estimated costs are model assumptions derived from category-level cost ratios. They are not supplier quotes or guarantees of profitability.</div>
+</section>
+
+<section id="pricing" class="page">
+  <div class="kicker">Step 3</div><h2>Pricing Calculator</h2><p class="lead">Build a cost stack for one product and see what different pricing assumptions do.</p>
+  <div class="grid two">
+    <div class="card form">
+      <div class="grid two">
+        <div class="field"><label>Ingredient cost / item</label><input id="pcIngredient" type="number" value="35"></div>
+        <div class="field"><label>Packaging / item</label><input id="pcPackaging" type="number" value="5"></div>
+      </div>
+      <div class="grid two">
+        <div class="field"><label>Labour / item</label><input id="pcLabour" type="number" value="10"></div>
+        <div class="field"><label>Other variable cost / item</label><input id="pcOther" type="number" value="3"></div>
+      </div>
+      <div class="field"><label>Monthly fixed costs (rent + utilities + staff + other)</label><input id="pcFixed" type="number" value="100000"></div>
+      <div class="field"><label>Expected units sold / month</label><input id="pcUnits" type="number" value="2400"></div>
+      <div class="field"><label>Target gross margin %</label><input id="pcMargin" type="number" value="60" min="1" max="95"></div>
+      <div class="actions"><button class="btn primary" onclick="calcPricing()">Calculate</button></div>
+    </div>
+    <div class="card">
+      <div class="grid two">
+        <div class="stat"><div class="label">Variable cost / item</div><div class="value" id="pcCost">฿53</div></div>
+        <div class="stat"><div class="label">Suggested price</div><div class="value" id="pcPrice">฿133</div></div>
+        <div class="stat"><div class="label">Gross profit / item</div><div class="value positive" id="pcProfit">฿80</div></div>
+        <div class="stat"><div class="label">Gross margin</div><div class="value" id="pcMarginOut">60%</div></div>
+      </div>
+      <hr style="border:0;border-top:1px solid var(--line);margin:20px 0">
+      <div class="grid two">
+        <div><div class="small muted">Break-even units / month</div><div class="big-profit" style="font-size:30px" id="pcBE">1,250</div></div>
+        <div><div class="small muted">Break-even sales</div><div class="big-profit" style="font-size:30px" id="pcBESales">฿166,667</div></div>
+      </div>
+      <div class="notice" style="margin-top:18px">Break-even depends on the assumptions you enter. It does not mean the product will sell that volume.</div>
+    </div>
+  </div>
+</section>
+
+<section id="simulator" class="page">
+  <div class="kicker">Step 4</div><h2>Profit Simulator</h2><p class="lead">Test “what if?” scenarios. Results update instantly from your planning assumptions.</p>
+  <div class="grid two">
+    <div class="card">
+      <div class="slider"><label>Customer volume <b id="vCust">100%</b></label><input id="sCust" type="range" min="50" max="150" value="100"></div>
+      <div class="slider"><label>Average spend / customer <b id="vSpend">100%</b></label><input id="sSpend" type="range" min="70" max="140" value="100"></div>
+      <div class="slider"><label>Ingredient + packaging costs <b id="vMat">100%</b></label><input id="sMat" type="range" min="70" max="140" value="100"></div>
+      <div class="slider"><label>Staff costs <b id="vStaff">100%</b></label><input id="sStaff" type="range" min="70" max="140" value="100"></div>
+      <div class="slider"><label>Utilities + other costs <b id="vUtil">100%</b></label><input id="sUtil" type="range" min="60" max="140" value="100"></div>
+    </div>
+    <div class="card">
+      <div class="small muted">ESTIMATED MONTHLY PROFIT</div><div class="big-profit" id="simProfit">฿0</div>
+      <div id="simChange" class="positive">+฿0 vs baseline</div>
+      <div class="grid two" style="margin-top:22px"><div class="stat"><div class="label">Revenue</div><div class="value" id="simRevenue">฿0</div></div><div class="stat"><div class="label">Expenses</div><div class="value" id="simExpenses">฿0</div></div></div>
+    </div>
+  </div>
+  <div class="grid four" style="margin-top:16px" id="scenarioCards"></div>
+  <div class="card" style="margin-top:16px"><h3>Profit sensitivity</h3><div class="chart"><canvas id="profitChart"></canvas></div></div>
+</section>
+
+<section id="menu" class="page">
+  <div class="kicker">Step 5</div><h2>Menu Builder</h2><p class="lead">Select products for a starter menu. Prices remain editable.</p>
+  <div class="grid two">
+    <div class="card"><h3>Recommended products</h3><div id="menuChoices"></div></div>
+    <div class="card"><h3>Your starter menu</h3><div id="menuList"></div><div class="actions"><button class="btn primary" onclick="window.print()">Print / save menu</button></div></div>
+  </div>
+</section>
+
+<section id="dashboard" class="page">
+  <div class="kicker">Your plan</div><h2>Dashboard</h2><p class="lead">Your Bakery Starter Plan brings the assumptions, product mix and estimated financial picture together.</p>
+  <div class="grid four" id="dashStats"></div>
+  <div class="grid two" style="margin-top:16px">
+    <div class="card"><h3>Recommended starter mix</h3><div id="dashProducts"></div></div>
+    <div class="card"><h3>Business insights</h3><div id="dashInsights"></div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3>Estimated monthly economics</h3><div class="chart"><canvas id="dashChart"></canvas></div></div>
+  <div class="notice" style="margin-top:16px"><b>Important:</b> all prices, costs, margins, quantities, revenue, expenses and profit figures in Bakery Thrive are estimates for planning. Actual outcomes depend on local market demand, supplier pricing, waste, rent, labour, utilities, taxes, competition and many other factors.</div>
+</section>
+</main></div>
+
+<script>
+const REF = [{"bakery": "Nine Pastry", "category": "Pastry", "product": "Croissant", "price": 60.0}, {"bakery": "Bangkok Baking Company (BBCO)", "category": "Bread", "product": "Sourdough Bread", "price": 180.0}, {"bakery": "Konnichipan Bakery", "category": "Bread", "product": "Melon Pan", "price": 40.0}, {"bakery": "Holey Artisan Bakery", "category": "Bread", "product": "Sourdough Loaf", "price": 220.0}, {"bakery": "Erawan Bakery", "category": "Cake", "product": "Cheesecake", "price": 150.0}, {"bakery": "Sarnies Sourdough", "category": "Bread", "product": "Sourdough Loaf", "price": 220.0}, {"bakery": "Amantee The Bakery", "category": "Bread", "product": "Baguette", "price": 100.0}, {"bakery": "Koji Bakery House", "category": "Pastry", "product": "Japanese Cream Bun", "price": 70.0}, {"bakery": "Brooklyn Baker", "category": "Cake", "product": "Chocolate Cake", "price": 800.0}, {"bakery": "Neil's Bake Shoppe", "category": "Pastry", "product": "Apple Pie", "price": 180.0}, {"bakery": "Conkey's Bakery", "category": "Bread", "product": "Sourdough Loaf", "price": 250.0}, {"bakery": "Wild Grains Bakery", "category": "Bread", "product": "Whole Wheat Bread", "price": 180.0}, {"bakery": "The Tiramisu Lab", "category": "Dessert", "product": "Tiramisu", "price": 180.0}, {"bakery": "Panna Sourdough Craft Cafe", "category": "Bread", "product": "Sourdough Loaf", "price": 220.0}, {"bakery": "Mocha & Muffins Anantara Siam", "category": "Cake", "product": "Muffin", "price": 150.0}, {"bakery": "Warm Welcome Bakery & Cafe", "category": "Pastry", "product": "Danish Pastry", "price": 100.0}, {"bakery": "Foobreca", "category": "Bread", "product": "Milk Bread", "price": 90.0}, {"bakery": "Pak Bakery", "category": "Cake", "product": "Swiss Roll", "price": 120.0}, {"bakery": "La Cabra Bakery", "category": "Pastry", "product": "Croissant", "price": 120.0}, {"bakery": "Sweet Me Bakery", "category": "Cake", "product": "Chocolate Cake", "price": 180.0}];
+const costRatio={Bread:.28,Pastry:.32,Cake:.35,Dessert:.34,Muffin:.30,Cookie:.25,Donut:.28,Croissant:.32,Sandwich:.38,Drinks:.25,Seasonal:.33};
+const icons={Bread:"🥖",Pastry:"🥐",Cake:"🍰",Dessert:"🍮",Muffin:"🧁",Cookie:"🍪",Donut:"🍩",Croissant:"🥐",Sandwich:"🥪",Drinks:"☕",Seasonal:"🎃"};
+const state={products:[],menu:[],category:"All"};
+const $=id=>document.getElementById(id);
+const money=n=>{const cur=$("currency")?.value||"THB";const sym={THB:"฿",USD:"$",GBP:"£",EUR:"€"}[cur]||"";return sym+Math.round(Number(n)||0).toLocaleString()};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+function go(id){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));window.scrollTo({top:0,behavior:"smooth"});if(id==="advisor")renderProducts();if(id==="menu")renderMenu();if(id==="dashboard")renderDashboard();if(id==="simulator")renderSim();}
+
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>go(b.dataset.page));
+function locationProfile(raw){
+ const q=(raw||'').toLowerCase();
+ let p={name:raw||'your location',factor:1,position:'balanced',focus:'broad local demand',notes:[]};
+ if(/ari|phahonyothin|saphan khwai/.test(q)){p.factor=1.08;p.position='specialty / café';p.focus='young professionals, café traffic and specialty bakery';p.notes=['Portable pastries and coffee pairings can fit a café-oriented concept.','Keep a mix of approachable everyday items and a few premium signatures.'];}
+ else if(/sukhumvit|thong lor|thonglor|ekkamai|phrom phong|asok|prom phong/.test(q)){p.factor=1.18;p.position='premium';p.focus='office workers, residents, expatriates and premium customers';p.notes=['Premium presentation and higher-ticket specialty items may be worth testing.','Convenience products can complement premium products during commuter periods.'];}
+ else if(/siam|chidlom|pleonchit|ploenchit|centralworld|ratchaprasong/.test(q)){p.factor=1.22;p.position='premium / high-footfall';p.focus='shoppers, students, office workers and visitors';p.notes=['Portable products and visually distinctive items may suit high-footfall locations.','Test smaller entry-price products alongside premium items.'];}
+ else if(/silom|sathorn|saladaeng|rama 9|ratchada/.test(q)){p.factor=1.10;p.position='office / mixed';p.focus='office workers and nearby residents';p.notes=['Breakfast, lunch and takeaway products can be useful demand occasions.','Consider bundles such as pastry + drink or sandwich + drink.'];}
+ else if(/bang na|on nut|onnut|lat krabang|ramintra|ramkhamhaeng|min buri/.test(q)){p.factor=.90;p.position='value / neighbourhood';p.focus='local residents and value-conscious customers';p.notes=['Accessible price points may be important for repeat local purchases.','Family-friendly breads, buns and shareable products can diversify the basket.'];}
+ else if(/bangkok/.test(q)){p.factor=1;p.position='balanced Bangkok';p.focus='mixed local demand';p.notes=['Use a balanced menu and validate prices against the immediate neighbourhood.'];}
+ else {p.factor=1;p.position='location-specific estimate';p.focus='the customer mix you described';p.notes=['This location is not in Bakery Thrive’s built-in area profiles, so the result uses the location name plus your bakery type and customer target as planning assumptions.','For a real launch, validate nearby competitors, rent, foot traffic and supplier costs.'];}
+ return p;
+}
+function aiMoney(n,cur){const sym={THB:'฿',USD:'$',GBP:'£',EUR:'€'}[cur]||'';return sym+Math.round(n).toLocaleString();}
+function runLocationAI(){
+ const loc=$('aiLocation').value.trim()||'your location', type=$('aiType').value,target=$('aiTarget').value,customers=Number($('aiCustomers').value||80),cur=$('aiCurrency').value;
+ const prof=locationProfile(loc);
+ const pool=REF.slice().sort((a,b)=>{const pa=(a.category==='Bread'?1.1:1)+(target.includes('Premium')&&a.category==='Cake'?.15:0)+(target.includes('Office')&&['Pastry','Bread'].includes(a.category)?.12:0);const pb=(b.category==='Bread'?1.1:1)+(target.includes('Premium')&&b.category==='Cake'?.15:0)+(target.includes('Office')&&['Pastry','Bread'].includes(b.category)?.12:0);return pb-pa;});
+ const seen=new Set(), picks=[];
+ pool.forEach(r=>{if(seen.has(r.category))return;seen.add(r.category);picks.push(r)});
+ // Ensure a practical mix
+ const preferred=['Bread','Pastry','Cake','Dessert']; REF.forEach(r=>{if(!seen.has(r.category)&&preferred.includes(r.category)){seen.add(r.category);picks.push(r)}});
+ picks=picks.slice(0,6).map((r,i)=>{let price=r.price*prof.factor; if(type==='Premium bakery')price*=1.08;if(type==='Home / micro bakery')price*=.95;price=Math.round(price/5)*5;const ratio=costRatio[r.category]||.32;const cost=price*ratio;const qty=Math.max(3,Math.round(customers*([.25,.18,.07,.08,.12,.06][i]||.07)));return {...r,price,cost,gp:price-cost,margin:(price-cost)/price*100,qty};});
+ const avg=picks.reduce((a,x)=>a+x.price*x.qty,0)/Math.max(1,picks.reduce((a,x)=>a+x.qty,0));
+ const monthlyRevenue=picks.reduce((a,x)=>a+x.price*x.qty,0)*30;
+ const variable=monthlyRevenue*.32,fixed=Math.max(60000,monthlyRevenue*.28),profit=monthlyRevenue-variable-fixed;
+ $('aiResult').innerHTML=`<div class="card"><div class="kicker">AI analysis for ${esc(loc)}</div><h2>Your location-based bakery recommendation</h2><p class="lead">Planning position: <b>${esc(prof.position)}</b> · Main demand assumption: <b>${esc(prof.focus)}</b>. The AI uses your location wording, bakery type, target customers and the supplied Bangkok bakery reference dataset. Prices are estimates, not live quotations.</p><div class="grid three">${prof.notes.map((n,i)=>`<div class="insight"><strong>💡 ${i+1}. ${i===0?'Location fit':'Planning consideration'}</strong><span>${esc(n)}</span></div>`).join('')}</div></div>
+ <div class="card" style="margin-top:16px"><div class="row"><h3>What I would put in the bakery</h3><span class="badge">Estimated local positioning</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Product</th><th>Category</th><th>Suggested price</th><th>Est. cost</th><th>Est. gross margin</th><th>Suggested / day</th><th>Why</th></tr></thead><tbody>${picks.map(x=>`<tr><td class="product-name">${icons[x.category]||'🍞'} ${esc(x.product)}</td><td>${esc(x.category)}</td><td class="money">${aiMoney(x.price,cur)}</td><td>${aiMoney(x.cost,cur)}</td><td><b>${x.margin.toFixed(0)}%</b><div class="progress" style="margin-top:5px"><i style="width:${Math.min(100,x.margin)}%"></i></div></td><td>${x.qty}</td><td class="small">Fits the ${esc(prof.position)} positioning; test demand and price sensitivity locally.</td></tr>`).join('')}</tbody></table></div></div>
+ <div class="grid four" style="margin-top:16px"><div class="card stat"><div class="label">Avg. recommended price</div><div class="value">${aiMoney(avg,cur)}</div><div class="sub">across suggested items</div></div><div class="card stat"><div class="label">Est. monthly revenue</div><div class="value">${aiMoney(monthlyRevenue,cur)}</div><div class="sub">based on suggested quantities</div></div><div class="card stat"><div class="label">Est. monthly expenses</div><div class="value">${aiMoney(variable+fixed,cur)}</div><div class="sub">simplified planning model</div></div><div class="card stat"><div class="label">Est. monthly profit</div><div class="value ${profit>=0?'positive':'negative'}">${aiMoney(profit,cur)}</div><div class="sub">not a guarantee</div></div></div>
+ <div class="card" style="margin-top:16px"><h3>What the AI would validate before opening</h3><div class="grid three"><div class="insight"><strong>📍 Immediate competition</strong><span>Check bakeries within walking distance and compare their actual menu prices, opening hours and busy periods.</span></div><div class="insight"><strong>🚶 Foot traffic</strong><span>Count potential customers at breakfast, lunch, after school/work and weekends rather than relying only on city-wide averages.</span></div><div class="insight"><strong>💸 Actual costs</strong><span>Replace estimated ingredient, rent, labour, electricity, water and packaging costs with supplier quotes and your lease terms.</span></div></div><div class="actions"><button class="btn primary" onclick="go('pricing')">Use these ideas in Pricing Calculator →</button><button class="btn" onclick="go('menu')">Build this menu →</button></div></div>`;
+}
+
+
+async function importExcel(file){
+  const status=$("excelStatus");
+  if(!file)return;
+  try{
+    const data=await file.arrayBuffer();
+    const wb=XLSX.read(data,{type:"array"});
+    const first=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(first,{defval:""});
+    const normalized=[];
+    rows.forEach(r=>{
+      const keys=Object.keys(r);
+      const find=k=>keys.find(x=>x.toLowerCase().replace(/[^a-z0-9]/g,"").includes(k));
+      const bakery=r[find("nameofbakery")||find("bakery")||keys[0]];
+      const category=r[find("category")||keys[1]];
+      const product=r[find("productname")||find("product")||keys[2]];
+      const raw=r[find("averagepricethb")||find("averageprice")||find("price")||keys[3]];
+      const num=Number(String(raw).replace(/[^0-9.]/g,""));
+      if(product&&category&&Number.isFinite(num)&&num>0)normalized.push({bakery:String(bakery||"Imported bakery"),category:String(category),product:String(product),price:num});
+    });
+    if(!normalized.length)throw new Error("No rows with product, category and price columns were found.");
+    REF.length=0; normalized.forEach(x=>REF.push(x));
+    state.products=[]; state.menu=[];
+    status.innerHTML=`<span class="positive">✓ Imported ${normalized.length} products from <b>${esc(file.name)}</b>.</span>`;
+    generate();
+  }catch(e){status.innerHTML=`<span class="negative">Could not import this file: ${esc(e.message)}</span>`;}
+}
+$("excelFile").addEventListener("change",e=>importExcel(e.target.files[0]));
+
+function save(){localStorage.setItem("bakeryThrive",JSON.stringify({location:$("location").value,type:$("type").value,budget:$("budget").value,target:$("target").value,customers:$("customers").value,hours:$("hours").value,currency:$("currency").value,prefs:$("prefs").value,menu:state.menu}))}
+function load(){try{const x=JSON.parse(localStorage.getItem("bakeryThrive")||"null");if(!x)return;for(const k of ["location","type","budget","target","customers","hours","currency","prefs"])if($(k)&&x[k]!=null)$(k).value=x[k];state.menu=x.menu||[]}catch(e){}}
+function syncSnapshot(){$("snapCustomers").textContent=Number($("customers").value||0).toLocaleString();$("snapBudget").textContent=money($("budget").value);$("snapHours").textContent=($("hours").value||0)+"h";$("snapLocation").textContent=$("location").value||"—"}
+["location","budget","customers","hours","currency"].forEach(id=>$(id).addEventListener("input",()=>{syncSnapshot();save();}));
+["type","target","prefs"].forEach(id=>$(id).addEventListener("change",save));
+
+function productReason(cat,type,target){
+  if(type==="Premium bakery" && (cat==="Cake"||cat==="Pastry"))return "Fits a premium positioning and can support higher ticket sizes if demand and quality justify it.";
+  if(type==="Café bakery" && (cat==="Bread"||cat==="Pastry"))return "Works well with café traffic and can pair with drinks to increase basket size.";
+  if(type==="Wholesale bakery")return "Can be produced in repeatable batches, but volume contracts and unit economics should be validated.";
+  if(target==="Office workers" && (cat==="Pastry"||cat==="Sandwich"||cat==="Drinks"))return "Convenient for breakfast or lunch occasions and potential add-on purchases.";
+  if(target==="Students & young adults" && (cat==="Pastry"||cat==="Muffin"||cat==="Drinks"))return "Portable, familiar and suitable for quick purchases; test price sensitivity locally.";
+  return "A recognizable bakery category that can diversify the starter menu.";
+}
+function generate(){
+  const prefs=$("prefs").value.toLowerCase();
+  let base=REF.filter(r=>r.product && r.price>0);
+  const prefWords=prefs.split(/[, ]+/).filter(Boolean);
+  base=base.sort((a,b)=>{
+    const ah=prefWords.some(w=>(a.category+" "+a.product).toLowerCase().includes(w));
+    const bh=prefWords.some(w=>(b.category+" "+b.product).toLowerCase().includes(w));
+    return Number(bh)-Number(ah);
+  });
+  const seen=new Set();state.products=[];
+  base.forEach(r=>{
+    const key=r.category+"|"+r.product;
+    if(seen.has(key))return; seen.add(key);
+    const ratio=costRatio[r.category]||.32;
+    const price=r.price, cost=price*ratio, gp=price-cost, margin=gp/price*100;
+    const mix={Bread:.22,Pastry:.16,Cake:.05,Dessert:.05,Muffin:.10};
+    const qty=Math.max(2,Math.round(Number($("customers").value||80)*(mix[r.category]||.08)));
+    state.products.push({...r,cost,gp,margin,qty,reason:productReason(r.category,$("type").value,$("target").value)});
+  });
+  state.products=state.products.slice(0,12);
+  state.menu=state.products.slice(0,7).map(x=>({product:x.product,category:x.category,price:x.price}));
+  syncSnapshot();save();renderProducts();renderMenu();renderDashboard();go("dashboard");
+}
+$("generate").onclick=generate;
+
+function renderFilters(){
+  const cats=["All",...new Set(state.products.map(x=>x.category))];
+  $("categoryFilters").innerHTML=cats.map(c=>`<button class="choice ${state.category===c?"on":""}" onclick="state.category='${esc(c)}';renderProducts()">${icons[c]||"✦"} ${esc(c)}</button>`).join("");
+}
+function renderProducts(){
+  if(!state.products.length)generate();
+  renderFilters();
+  const arr=state.category==="All"?state.products:state.products.filter(x=>x.category===state.category);
+  $("productBody").innerHTML=arr.map((x,i)=>`<tr>
+  <td><div class="product-name">${icons[x.category]||"🍞"} ${esc(x.product)}</div><div class="small muted">${esc(x.bakery)}</div></td>
+  <td><span class="badge">${esc(x.category)}</span></td><td class="money">${money(x.price)}</td><td>${money(x.cost)}</td><td class="positive"><b>${money(x.gp)}</b></td>
+  <td><b>${x.margin.toFixed(0)}%</b><div class="progress" style="margin-top:5px"><i style="width:${Math.min(100,x.margin)}%"></i></div></td>
+  <td>${x.qty}</td><td class="small">${esc(x.reason)}</td><td><button class="btn" onclick="addMenu('${esc(x.product)}')">Add</button></td></tr>`).join("");
+}
+function addMenu(name){const x=state.products.find(p=>p.product===name);if(!x)return;if(!state.menu.some(m=>m.product===name))state.menu.push({product:x.product,category:x.category,price:x.price});save();renderMenu();alert("Added to your starter menu.");}
+function renderMenu(){
+  $("menuChoices").innerHTML=(state.products.length?state.products:REF.slice(0,8).map(r=>({...r,cost:r.price*(costRatio[r.category]||.32)}))).map(x=>`<div class="menu-item"><div><b>${icons[x.category]||"🍞"} ${esc(x.product)}</b><div class="small muted">${esc(x.category)}</div></div><button class="btn" onclick="addMenu('${esc(x.product)}')">Add</button></div>`).join("");
+  $("menuList").innerHTML=state.menu.length?state.menu.map((m,i)=>`<div class="menu-item"><div><b>${icons[m.category]||"🍞"} ${esc(m.product)}</b><div class="small muted">${esc(m.category)} · Edit price below</div></div><input type="number" value="${Math.round(m.price)}" onchange="state.menu[${i}].price=Number(this.value);save()"></div>`).join(""):"<div class='empty'>No products selected yet. Add products from the left.</div>";
+}
+function calcPricing(){
+  const c=["pcIngredient","pcPackaging","pcLabour","pcOther"].reduce((s,id)=>s+Number($(id).value||0),0), fixed=Number($("pcFixed").value||0),units=Number($("pcUnits").value||0), margin=Number($("pcMargin").value||60)/100;
+  const price=c/(1-margin),gp=price-c,be=gp>0?Math.ceil(fixed/gp):0;
+  $("pcCost").textContent=money(c);$("pcPrice").textContent=money(price);$("pcProfit").textContent=money(gp);$("pcMarginOut").textContent=Math.round((gp/price)*100)+"%";$("pcBE").textContent=be.toLocaleString();$("pcBESales").textContent=money(be*price);
+}
+["pcIngredient","pcPackaging","pcLabour","pcOther","pcFixed","pcUnits","pcMargin"].forEach(id=>$(id).addEventListener("input",calcPricing));
+
+function baseFinancials(){
+  const cust=Number($("customers").value||0), avg=state.menu.length?state.menu.reduce((a,x)=>a+x.price,0)/state.menu.length:120;
+  const days=30, revenue=cust*avg*days;
+  const variable=revenue*.32;
+  const fixed=Math.max(60000,Number($("budget").value||0)*.07);
+  return {cust,avg,days,revenue,variable,fixed,expenses:variable+fixed,profit:revenue-variable-fixed};
+}
+function simValues(){
+  const b=baseFinancials(), cust=Number($("sCust").value)/100, spend=Number($("sSpend").value)/100, mat=Number($("sMat").value)/100, staff=Number($("sStaff").value)/100, util=Number($("sUtil").value)/100;
+  const revenue=b.revenue*cust*spend, variable=b.variable*mat, fixed=b.fixed*(staff*.6+util*.4);
+  return {revenue,expenses:variable+fixed,profit:revenue-variable-fixed};
+}
+function renderSim(){
+  const ids=[["sCust","vCust"],["sSpend","vSpend"],["sMat","vMat"],["sStaff","vStaff"],["sUtil","vUtil"]];ids.forEach(([a,b])=>$(b).textContent=$(a).value+"%");
+  const b=baseFinancials(),s=simValues(),delta=s.profit-b.profit;
+  $("simProfit").textContent=money(s.profit);$("simRevenue").textContent=money(s.revenue);$("simExpenses").textContent=money(s.expenses);
+  $("simChange").textContent=(delta>=0?"+":"")+money(delta)+" vs baseline";$("simChange").className=delta>=0?"positive":"negative";
+  const scenarios=[["Current",1,1,1,1,1],["Costs -10%",1,1,.9,.9,.9],["Sales +15%",1.15,1,1,1,1],["Spend +5%",1,1.05,1,1,1]];
+  $("scenarioCards").innerHTML=scenarios.map(x=>{const [n,c,p,m,l,u]=x,r=b.revenue*c*p,e=b.variable*m+b.fixed*(l*.6+u*.4),pr=r-e;return `<div class="card"><span class="badge">${n}</span><div class="big-profit" style="font-size:25px;margin-top:9px">${money(pr)}</div><div class="small muted">estimated monthly profit</div></div>`}).join("");
+  drawBar("profitChart",[["Revenue",s.revenue],["Expenses",s.expenses],["Profit",s.profit]]);
+}
+["sCust","sSpend","sMat","sStaff","sUtil"].forEach(id=>$(id).addEventListener("input",renderSim));
+
+function drawBar(id,items){
+  const c=$(id),dpr=devicePixelRatio||1,w=c.clientWidth||600,h=c.clientHeight||240;c.width=w*dpr;c.height=h*dpr;const ctx=c.getContext("2d");ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
+  const max=Math.max(...items.map(x=>Math.abs(x[1])),1),base=h-45,bw=Math.min(100,w/items.length*.55);
+  items.forEach((it,i)=>{const bh=Math.abs(it[1])/max*(h-80),x=(w/items.length)*i+(w/items.length-bw)/2,y=it[1]>=0?base-bh:base;ctx.fillStyle=i===2?"#3e7656":"#c98a4a";ctx.beginPath();ctx.roundRect(x,y,bw,bh,10);ctx.fill();ctx.fillStyle="#4b2e20";ctx.font="700 12px system-ui";ctx.textAlign="center";ctx.fillText(it[0],x+bw/2,base+22);ctx.fillText(money(it[1]),x+bw/2,Math.max(18,y-8))});
+}
+function renderDashboard(){
+  if(!state.products.length)generate();
+  const b=baseFinancials(), margin=b.revenue?b.profit/b.revenue*100:0, be=b.revenue>b.variable?Math.ceil(b.fixed/(b.revenue-b.variable)*b.cust):0;
+  $("dashStats").innerHTML=[
+    ["Est. monthly revenue",money(b.revenue),"based on customers × average basket"],
+    ["Est. monthly expenses",money(b.expenses),"variable + fixed assumptions"],
+    ["Est. monthly profit",money(b.profit),b.profit>=0?"positive":"negative"],
+    ["Break-even customers",Math.max(1,be).toLocaleString(),"estimated customers / month"]
+  ].map(x=>`<div class="card stat"><div class="label">${x[0]}</div><div class="value ${x[2]}">${x[1]}</div><div class="sub">${x[2]==="positive"?"estimate":"planning estimate"}</div></div>`).join("");
+  $("dashProducts").innerHTML=state.products.slice(0,7).map(x=>`<div class="insight"><strong>${icons[x.category]||"🍞"} ${esc(x.product)} · ${money(x.price)}</strong><span>${x.category} · est. ${x.margin.toFixed(0)}% gross margin · suggested ${x.qty}/day · ${esc(x.reason)}</span></div>`).join("");
+  const insights=[];
+  if(margin<20)insights.push(["Protect the margin",`The baseline estimated profit margin is ${margin.toFixed(1)}%. Review costs before adding more fixed spending.`]);
+  else insights.push(["Validate your price",`The baseline estimate is ${margin.toFixed(1)}% after the simplified cost assumptions. Check actual ingredient and labour costs before launch.`]);
+  insights.push(["Start focused",`A starter menu of about ${Math.min(8,state.products.length)} core products can make testing demand and operations easier. This is a planning suggestion, not a guarantee.`]);
+  insights.push(["Use bundles",`Consider pairing bakery items with drinks or complementary products to test whether average customer spending can increase.`]);
+  insights.push(["Watch waste",`Fresh products can lose margin through unsold stock. Track daily production, sales and waste separately.`]);
+  $("dashInsights").innerHTML=insights.map(x=>`<div class="insight"><strong>💡 ${x[0]}</strong><span>${x[1]}</span></div>`).join("");
+  drawBar("dashChart",[["Revenue",b.revenue],["Variable",b.variable],["Fixed",b.fixed],["Profit",b.profit]]);
+}
+$("reset").onclick=()=>{if(confirm("Reset this Bakery Thrive plan?")){localStorage.removeItem("bakeryThrive");location.reload()}};
+
+load();syncSnapshot();calcPricing();generate();
+</script>
+</body>
+</html>
